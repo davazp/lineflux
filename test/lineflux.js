@@ -119,6 +119,9 @@ describe('Initialization', function(){
     msg('test', {value: 10}, {}, null).should.be.equal('test,machine=gauss value=10');
   });
 
+  it('should set a prefix for all the measurements', function(){
+    var msg = mock({prefix: 'app.'});
+    msg('test', {v: 0}, {}, null).should.be.equal('app.test v=0');
+  });
+
 });
-
-

@@ -70,6 +70,7 @@ function client (options, transport){
 
   // Normalize arguments
   options = _.defaults(options||{}, {
+    prefix: '',
     defaultTags: {}
   });
   if (arguments.length < 2){
@@ -84,7 +85,7 @@ function client (options, transport){
     if (arguments.length < 4)
       timestamp = new Date() * 1000000;
 
-    var message = formatLine(measurement, tags, values, timestamp);
+    var message = formatLine(options.prefix+measurement, tags, values, timestamp);
     transport(message);
   };
 };
