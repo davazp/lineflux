@@ -73,7 +73,7 @@ describe('Line Protocol Format', function(){
     msg('m', {'v': new lineflux.Integer(-1)}, {}, 0).should.be.equal('m v=-1i 0');
   });
 
-  it('should format msgoat field values', function(){
+  it('should format float field values', function(){
     msg('m', {'v': 1}, {}, 0).should.be.equal('m v=1 0');
     msg('m', {'v': 0}, {}, 0).should.be.equal('m v=0 0');
     msg('m', {'v': -1}, {}, 0).should.be.equal('m v=-1 0');
