@@ -1,0 +1,15 @@
+{
+  "name": "lineflux",
+  "version": "0.1.0",
+  "description": "A client for the InfluxDB line protocol",
+  "main": "lib/lineflux.js",
+  "scripts": {
+    "test": "node_modules/.bin/mocha"
+  },
+  "author": "David Vázquez Púa <davazp@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^3.3.0",
+    "mocha": "^2.3.3"
+  }
+}
