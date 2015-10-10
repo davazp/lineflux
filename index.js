@@ -1,5 +1,5 @@
 var _ = require('lodash');
-
+var request = require('request');
 
 // Wrapper for integer values
 function Integer (n){
@@ -75,7 +75,12 @@ function client (options, transport){
   });
   if (arguments.length < 2){
     transport = function(line){
-      return line;
+      request({
+        method: 'POST',
+        uri: options.url + '/write',
+        qs: {"db": options.database},
+        body: line
+      });
     };
   }
 
