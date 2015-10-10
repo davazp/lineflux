@@ -2,7 +2,7 @@
   "name": "lineflux",
   "version": "0.1.0",
   "description": "A client for the InfluxDB line protocol",
-  "main": "lib/lineflux.js",
+  "main": "index.js",
   "scripts": {
     "test": "node_modules/.bin/mocha"
   },
@@ -11,5 +11,8 @@
   "devDependencies": {
     "chai": "^3.3.0",
     "mocha": "^2.3.3"
+  },
+  "dependencies": {
+    "lodash": "^3.10.1"
   }
 }

@@ -1,4 +1,22 @@
-var Integer = require('./integer');
+var _ = require('lodash');
+
+
+// Wrapper for integer values
+function Integer (n){
+  this.value = n|0;
+  return this;
+};
+
+Integer.prototype.valueOf = function(){
+  return this.value;
+};
+
+Integer.prototype.toString = function(){
+  return this.value + 'i';
+};
+
+
+// Format line
 
 function escapeName(string){
   return string.replace(/[ ,=]/g, '\\$&');
@@ -8,7 +26,7 @@ function escapeString(string){
   return string.replace(/"/g, '\\"');
 }
 
-module.exports = function (measurement, tags, fields, ns){
+function formatLine (measurement, tags, fields, ns){
   var result = '';
 
   result += escapeName(measurement);
@@ -44,4 +62,33 @@ module.exports = function (measurement, tags, fields, ns){
     result += ' ' + ns;
 
   return result;
+};
+
+
+
+function Client (options, transport){
+  if (arguments.length < 2){
+    transport = function(line){
+      return line;
+    };
+  }
+  this.options = options;
+  this.transport = transport;
+}
+
+Client.prototype.Integer = Integer;
+
+Client.prototype.write = function(measurement, values, tags, timestamp){
+  tags = _.defaults(tags || {}, this.options.defaultTags);
+
+  if (arguments.length < 4)
+    timestamp = new Date() * 1000000;
+  
+  var message = formatLine(measurement, tags, values, timestamp);
+  this.transport(message);
+};
+
+
+module.exports = function(options, transport){
+  return new Client(options, transport);
 };
