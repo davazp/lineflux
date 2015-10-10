@@ -1,16 +1,19 @@
 var chai = require('chai').should();
+var lineflux = require('..');
 
-var lastResult = "";
-var lineflux = require('..')({}, function(line){
-  lastResult = line;
-});
 
-function msg (){
-  lineflux.write.apply(lineflux, arguments);
-  return lastResult;
+function mock(options){
+  var lastResult;
+  var lf = lineflux(options, function(line){ lastResult = line; });
+  return function(){
+    lf.apply(null, arguments);
+    return lastResult;
+  };
 }
 
+
 describe('Line Protocol Format', function(){
+  var msg = mock();
 
   it('should be correct for basic cases', function(){
     msg('t', {value: 1}, {m: 'h'}, 0).should.be.equal('t,m=h value=1 0');
@@ -107,3 +110,15 @@ describe('Line Protocol Format', function(){
   });
 
 });
+
+
+describe('Initialization', function(){
+
+  it('should set default tags for all the measurements', function(){
+    var msg = mock({defaultTags: {machine: 'gauss'}});
+    msg('test', {value: 10}, {}, null).should.be.equal('test,machine=gauss value=10');
+  });
+
+});
+
+

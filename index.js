@@ -66,29 +66,29 @@ function formatLine (measurement, tags, fields, ns){
 
 
 
-function Client (options, transport){
+function client (options, transport){
+
+  // Normalize arguments
+  options = _.defaults(options||{}, {
+    defaultTags: {}
+  });
   if (arguments.length < 2){
     transport = function(line){
       return line;
     };
   }
-  this.options = options;
-  this.transport = transport;
-}
 
-Client.prototype.Integer = Integer;
+  return function (measurement, values, tags, timestamp){
+    tags = _.defaults(tags || {}, options.defaultTags);
 
-Client.prototype.write = function(measurement, values, tags, timestamp){
-  tags = _.defaults(tags || {}, this.options.defaultTags);
+    if (arguments.length < 4)
+      timestamp = new Date() * 1000000;
 
-  if (arguments.length < 4)
-    timestamp = new Date() * 1000000;
-  
-  var message = formatLine(measurement, tags, values, timestamp);
-  this.transport(message);
+    var message = formatLine(measurement, tags, values, timestamp);
+    transport(message);
+  };
 };
 
+client.Integer = Integer;
 
-module.exports = function(options, transport){
-  return new Client(options, transport);
-};
+module.exports = client;
