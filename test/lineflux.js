@@ -57,6 +57,11 @@ describe('Line Protocol Format', function(){
     msg('m', {v:1}, {'t': '   '}, 0).should.be.equal('m,t=\\ \\ \\  v=1 0');
   });
 
+  it('tags should be lexicographically sorted', function(){
+    var tags = {z: 0, a: 0, b: 0, c: 0, y: 0, x: 0};
+    msg('m', {v:1}, tags, 0).should.be.equal('m,a=0,b=0,c=0,x=0,y=0,z=0 v=1 0');
+  });
+
   it('should escape field names', function(){
     msg('m', {'a,b': 1}, {}, 0).should.be.equal('m a\\,b=1 0');
     msg('m', {'a=b': 1}, {}, 0).should.be.equal('m a\\=b=1 0');
