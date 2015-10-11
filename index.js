@@ -1,5 +1,6 @@
 var _ = require('lodash');
 var request = require('request');
+var dgram = require('dgram');
 
 // Wrapper for integer values
 function Integer (n){
@@ -81,6 +82,12 @@ function client (options, transport){
         qs: {"db": options.database},
         body: line
       });
+    };
+  } else if (transport === 'udp'){
+    var client = dgram.createSocket('udp4');
+    transport = function(line){
+      var message = new Buffer (line);
+      client.send(message, 0, message.length, options.port || 8089, options.server);
     };
   }
 
