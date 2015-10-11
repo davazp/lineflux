@@ -15,5 +15,21 @@
   "dependencies": {
     "lodash": "^3.10.1",
     "request": "^2.64.0"
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davazp/lineflux.git"
+  },
+  "keywords": [
+    "influxdb",
+    "statistics",
+    "metrics"
+  ],
+  "bugs": {
+    "url": "https://github.com/davazp/lineflux/issues"
+  },
+  "homepage": "https://github.com/davazp/lineflux#readme"
 }
