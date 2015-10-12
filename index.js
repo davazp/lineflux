@@ -27,18 +27,18 @@ function escapeString(string){
   return string.replace(/"/g, '\\"');
 }
 
-function formatLine (measurement, tags, fields, ns){
+function formatKey (measurement, tags){
   var result = '';
-
   result += escapeName(measurement);
-
   Object.keys(tags).sort().forEach(function(name){
     var value = tags[name].toString();
     result += ',' + escapeName(name) + '=' + escapeName(value);
   });
+  return result;
+}
 
-  result += ' ';
-
+function formatFields (fields){
+  var result = '';
   Object.keys(fields).forEach(function(name){
     var rawvalue = fields[name];
     var value;
@@ -58,12 +58,20 @@ function formatLine (measurement, tags, fields, ns){
 
     result += escapeName(name) + '=' + value;
   });
+  return result;
+}
 
+function formatLine (measurement, tags, fields, ns){
+  var result = '';
+
+  result += formatKey(measurement, tags);
+  result += ' ';
+  result += formatFields(fields);
   if (ns !== undefined && ns !== null)
     result += ' ' + ns;
 
   return result;
-};
+}
 
 
 
