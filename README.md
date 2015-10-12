@@ -22,6 +22,6 @@ var metrics = require('lineflux')({
   }
 });
 
-metrics('memory', {free: os.freemen()};
+metrics('memory', {free: os.freemem()});
 
 ```
