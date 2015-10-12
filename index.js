@@ -61,25 +61,11 @@ function formatFields (fields){
   return result;
 }
 
-function formatLine (measurement, tags, fields, ns){
-  var result = '';
-
-  result += formatKey(measurement, tags);
-  result += ' ';
-  result += formatFields(fields);
-  if (ns !== undefined && ns !== null)
-    result += ' ' + ns;
-
-  return result;
-}
-
-
-
 function client (options, transport){
-
   // Normalize arguments
   options = _.defaults(options||{}, {
     prefix: '',
+    flushInterval: 10000,
     defaultTags: {}
   });
   if (arguments.length < 2){
@@ -99,6 +85,15 @@ function client (options, transport){
     };
   }
 
+  var aggregates = {};
+
+  function flush () {
+    Object.keys(aggregates).forEach(function(k){
+      aggregates[k].forEach(transport);
+    });
+  }
+  setInterval(flush, options.flushInterval);
+
   return function (measurement, values, tags, timestamp){
     tags = _.defaults(tags || {}, options.defaultTags);
 
@@ -108,8 +103,16 @@ function client (options, transport){
     if (_.isNumber(values))
       values = {value: values};
 
-    var message = formatLine(options.prefix+measurement, tags, values, timestamp);
-    transport(message);
+    var message = '';
+    var key = formatKey(options.prefix+measurement, tags);;
+
+    message += key;
+    message += ' ';
+    message += formatFields(values);
+    if (timestamp !== undefined && timestamp !== null)
+      message += ' ' + timestamp;
+    aggregates['m-' + key] = aggregates['m-' + key] || [];
+    aggregates['m-' + key].push(message);
   };
 };
 
