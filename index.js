@@ -61,6 +61,27 @@ function formatFields (fields){
   return result;
 }
 
+
+function HTTPTransport (options){
+  return function(line){
+    request({
+      method: 'POST',
+      uri: options.url + '/write',
+      qs: {"db": options.database},
+      body: line
+    });
+  };
+}
+
+function UDPTransport (options){
+  var client = dgram.createSocket('udp4');
+  return function(line){
+    var message = new Buffer (line);
+    client.send(message, 0, message.length, options.port || 8089, options.server);
+  };
+}
+
+
 function client (options, transport){
   // Normalize arguments
   options = _.defaults(options||{}, {
@@ -68,22 +89,10 @@ function client (options, transport){
     flushInterval: 10000,
     defaultTags: {}
   });
-  if (arguments.length < 2){
-    transport = function(line){
-      request({
-        method: 'POST',
-        uri: options.url + '/write',
-        qs: {"db": options.database},
-        body: line
-      });
-    };
-  } else if (transport === 'udp'){
-    var client = dgram.createSocket('udp4');
-    transport = function(line){
-      var message = new Buffer (line);
-      client.send(message, 0, message.length, options.port || 8089, options.server);
-    };
-  }
+  if (arguments.length < 2)
+    transport = HTTPTransport(options);
+  else if (transport === 'udp')
+    transport = UDPTransport(options);
 
   var aggregates = {};
 
