@@ -4,7 +4,7 @@ var lineflux = require('..');
 
 function mock(options){
   var lastResult;
-  var lf = lineflux(options, function(line){ lastResult = line; });
+  var lf = lineflux(options, function(){}, function(line){ lastResult = line; });
   return function(){
     lf.apply(null, arguments);
     return lastResult;

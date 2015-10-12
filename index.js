@@ -82,7 +82,15 @@ function UDPTransport (options){
 }
 
 
-function client (options, transport){
+function collect (value, acc){
+  acc = acc || [];
+  acc.push(value);
+  return acc;
+}
+
+
+
+function client (options, transport, aggregateFunction){
   // Normalize arguments
   options = _.defaults(options||{}, {
     prefix: '',
@@ -93,6 +101,10 @@ function client (options, transport){
     transport = HTTPTransport(options);
   else if (transport === 'udp')
     transport = UDPTransport(options);
+
+  if (arguments.length < 3)
+    aggregateFunction = collect;
+
 
   var aggregates = {};
 
@@ -113,15 +125,15 @@ function client (options, transport){
       values = {value: values};
 
     var message = '';
-    var key = formatKey(options.prefix+measurement, tags);;
+    var key = formatKey(options.prefix+measurement, tags);
 
     message += key;
     message += ' ';
     message += formatFields(values);
     if (timestamp !== undefined && timestamp !== null)
       message += ' ' + timestamp;
-    aggregates['m-' + key] = aggregates['m-' + key] || [];
-    aggregates['m-' + key].push(message);
+
+    aggregates['m-'+key] = aggregateFunction(message, aggregates['m-'+key]);
   };
 };
 
