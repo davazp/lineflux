@@ -97,6 +97,9 @@ function client (options, transport){
     if (arguments.length < 4)
       timestamp = new Date() * 1000000;
 
+    if (_.isNumber(values))
+      values = {value: values};
+
     var message = formatLine(options.prefix+measurement, tags, values, timestamp);
     transport(message);
   };

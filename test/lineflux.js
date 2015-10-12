@@ -37,8 +37,8 @@ describe('Line Protocol Format', function(){
 
 
   it('should escape tag names', function(){
-    msg('m', {v:1}, {'a,b': 1}, 0).should.be.equal('m,a\\,b=1 v=1 0'); 
-    msg('m', {v:1}, {'a=b': 1}, 0).should.be.equal('m,a\\=b=1 v=1 0'); 
+    msg('m', {v:1}, {'a,b': 1}, 0).should.be.equal('m,a\\,b=1 v=1 0');
+    msg('m', {v:1}, {'a=b': 1}, 0).should.be.equal('m,a\\=b=1 v=1 0');
     msg('m', {v:1}, {'a b': 1}, 0).should.be.equal('m,a\\ b=1 v=1 0');
     msg('m', {v:1}, {' ab': 1}, 0).should.be.equal('m,\\ ab=1 v=1 0');
     msg('m', {v:1}, {'ab ': 1}, 0).should.be.equal('m,ab\\ =1 v=1 0');
@@ -101,10 +101,16 @@ describe('Line Protocol Format', function(){
     msg('m', {'v': '\\"'}, {}, 0).should.be.equal('m v="\\\\"" 0');
   });
 
+  it('numeric values should be assigned to the "values" field', function(){
+    msg('m',  0, {}, 0).should.be.equal('m value=0 0');
+    msg('m', -1, {}, 0).should.be.equal('m value=-1 0');
+    msg('m', +1, {}, 0).should.be.equal('m value=1 0');
+  });
+
   it('should include timestamp if it is provided', function(){
     msg('m', {'v': 1}, {}, 0).should.be.equal('m v=1 0');
     msg('m', {'v': 1}, {}, 1).should.be.equal('m v=1 1');
-    
+
     var ns = new Date() * 1000000;
     msg('m', {'v': 1}, {}, ns).should.be.equal('m v=1 ' + ns);
   });
