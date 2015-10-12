@@ -27,18 +27,18 @@ function escapeString(string){
   return string.replace(/"/g, '\\"');
 }
 
-function formatLine (measurement, tags, fields, ns){
+function formatKey (measurement, tags){
   var result = '';
-
   result += escapeName(measurement);
-
   Object.keys(tags).sort().forEach(function(name){
     var value = tags[name].toString();
     result += ',' + escapeName(name) + '=' + escapeName(value);
   });
+  return result;
+}
 
-  result += ' ';
-
+function formatFields (fields){
+  var result = '';
   Object.keys(fields).forEach(function(name){
     var rawvalue = fields[name];
     var value;
@@ -58,38 +58,62 @@ function formatLine (measurement, tags, fields, ns){
 
     result += escapeName(name) + '=' + value;
   });
-
-  if (ns !== undefined && ns !== null)
-    result += ' ' + ns;
-
   return result;
-};
+}
+
+
+function HTTPTransport (options){
+  return function(line){
+    request({
+      method: 'POST',
+      uri: options.url + '/write',
+      qs: {"db": options.database},
+      body: line
+    });
+  };
+}
+
+function UDPTransport (options){
+  var client = dgram.createSocket('udp4');
+  return function(line){
+    var message = new Buffer (line);
+    client.send(message, 0, message.length, options.port || 8089, options.server);
+  };
+}
+
+
+function collect (value, acc){
+  acc = acc || [];
+  acc.push(value);
+  return acc;
+}
 
 
 
-function client (options, transport){
-
+function client (options, transport, aggregateFunction){
   // Normalize arguments
   options = _.defaults(options||{}, {
     prefix: '',
+    flushInterval: 10000,
     defaultTags: {}
   });
-  if (arguments.length < 2){
-    transport = function(line){
-      request({
-        method: 'POST',
-        uri: options.url + '/write',
-        qs: {"db": options.database},
-        body: line
-      });
-    };
-  } else if (transport === 'udp'){
-    var client = dgram.createSocket('udp4');
-    transport = function(line){
-      var message = new Buffer (line);
-      client.send(message, 0, message.length, options.port || 8089, options.server);
-    };
+  if (arguments.length < 2)
+    transport = HTTPTransport(options);
+  else if (transport === 'udp')
+    transport = UDPTransport(options);
+
+  if (arguments.length < 3)
+    aggregateFunction = collect;
+
+
+  var aggregates = {};
+
+  function flush () {
+    Object.keys(aggregates).forEach(function(k){
+      aggregates[k].forEach(transport);
+    });
   }
+  setInterval(flush, options.flushInterval);
 
   return function (measurement, values, tags, timestamp){
     tags = _.defaults(tags || {}, options.defaultTags);
@@ -100,8 +124,16 @@ function client (options, transport){
     if (_.isNumber(values))
       values = {value: values};
 
-    var message = formatLine(options.prefix+measurement, tags, values, timestamp);
-    transport(message);
+    var message = '';
+    var key = formatKey(options.prefix+measurement, tags);
+
+    message += key;
+    message += ' ';
+    message += formatFields(values);
+    if (timestamp !== undefined && timestamp !== null)
+      message += ' ' + timestamp;
+
+    aggregates['m-'+key] = aggregateFunction(message, aggregates['m-'+key]);
   };
 };
 
