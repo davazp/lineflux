@@ -39,7 +39,7 @@ function formatKey (measurement, tags){
 
 function formatFields (fields){
   var result = '';
-  Object.keys(fields).forEach(function(name){
+  return Object.keys(fields).map(function(name){
     var rawvalue = fields[name];
     var value;
 
@@ -56,9 +56,9 @@ function formatFields (fields){
     else
       throw new Error('Unknown value "' + rawvalue + '" for field ' + name);
 
-    result += escapeName(name) + '=' + value;
-  });
-  return result;
+    return escapeName(name) + '=' + value;
+
+  }).join(',');
 }
 
 
