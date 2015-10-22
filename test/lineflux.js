@@ -107,6 +107,13 @@ describe('Line Protocol Format', function(){
     msg('m', +1, {}, 0).should.be.equal('m value=1 0');
   });
 
+  it('should format multiple values separated by comma', function(){
+    msg('m', {'a': 1, 'b': 2}, {}, 0).should.be.equal('m a=1,b=2 0');
+    msg('m', {'a': 1, 'b': 2, 'c': 3}, {}, 0).should.be.equal('m a=1,b=2,c=3 0');
+    msg('m', {'a': 1, 'b,': 2, 'c': 3}, {}, 0).should.be.equal('m a=1,b\\,=2,c=3 0');
+  });
+
+
   it('should include timestamp if it is provided', function(){
     msg('m', {'v': 1}, {}, 0).should.be.equal('m v=1 0');
     msg('m', {'v': 1}, {}, 1).should.be.equal('m v=1 1');
